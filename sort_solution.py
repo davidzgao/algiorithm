@@ -3,7 +3,6 @@
 import random
 import time
 
-
 class sort_solution(object):
     def swap(self,list1,i,j):
         tmp = list1[i]
@@ -143,18 +142,97 @@ class sort_solution(object):
             self.swap(list2Sort,0,i)
             heap_adjust(list2Sort,0,i)
         return list2Sort
+    def radix_sort(self,list2Sort):
+        def getMaxBit(list2Sort):
+            MaxBit = 1
+            div_num = 1
+            conti_point = True
+            while conti_point:
+                conti_point = False
+                for i in range(len(list2Sort)):
+                    if list2Sort[i] / div_num > 9 :
+                        div_num *= 10
+                        MaxBit += 1
+                        conti_point =True
+                        break
+            return MaxBit
+        def getBitNum(num,bit):
+            for i in range(bit-1):
+                num = num / 10
+            return num%10
+        def radix_core(list2Sort):
+            list_length = len(list2Sort)
+            maxBit = getMaxBit(list2Sort)
+            count = [0 for x in range(10)]
+            tmp = [0 for x in range(list_length)]
+            for i in range(1,maxBit+1):
+                for j in range(len(count)):
+                    count[j] = 0
+                for j in range(list_length):
+                    bitNum = getBitNum(list2Sort[j],i)
+                    count[bitNum] += 1
+                for j in range(1,len(count)):
+                    count[j] = count[j] + count[j - 1]
+                for j in range(list_length-1 , -1, -1):
+                    bitNum = getBitNum(list2Sort[j],i)
+                    tmp[count[bitNum] -1] = list2Sort[j]
+                    count[bitNum] = count[bitNum] - 1
+                for j in range(list_length):
+                    list2Sort[j] = tmp[j]
+        radix_core(list2Sort)
+        return list2Sort
+
+    def bucket_sort(self,list2Sort):
+        def getMaxBit(list2Sort):
+            maxBit = 1
+            list_length = len(list2Sort)
+            conti_flag = True
+            while conti_flag:
+                conti_flag =False
+                for i in range(list_length):
+                    if list2Sort[i] /  (10 ** maxBit) > 0 :
+                        maxBit += 1
+                        conti_flag = True
+                        break
+            return maxBit
+        def bucket_core(list2Sort, bucket_num = 10):
+            list_length = len(list2Sort)
+            maxBit =  getMaxBit(list2Sort)
+            divNum = (10 ** maxBit) / bucket_num + 1
+            bucket_list = [ [] for i in range(bucket_num)]
+            for i in range(list_length):
+                index = list2Sort[i] / divNum
+                try:
+                    bucket_list[index].append(list2Sort[i])
+                except:
+                    print maxBit,divNum,index, list2Sort[i]
+                    bucket_list[index].append(list2Sort[i])
+            for i in range(bucket_num):
+                self.quick_sort(bucket_list[i])
+            k = 0
+            for i in range(bucket_num):
+                for j in range(len(bucket_list[i])):
+                    list2Sort[k] = bucket_list[i][j]
+                    k += 1
+        bucket_core(list2Sort,10)
+        return list2Sort
+        
+
+
 
 
 
 if __name__ == "__main__":
     solu1 = sort_solution()
-    solu1.check_right(solu1.heap_sort)
+    solu1.check_right(solu1.bucket_sort)
     #solu1.check_performance(solu1.insert_sort)
     #solu1.check_performance(solu1.bubble_sort)
     #solu1.check_performance(solu1.choose_sort)
-    #solu1.check_performance(solu1.quick_sort)
+    solu1.check_performance(solu1.quick_sort)
     #solu1.check_performance(solu1.merge_sort)
     #solu1.check_performance(solu1.heap_sort)
+    #solu1.check_performance(solu1.radix_sort)
+    solu1.check_performance(solu1.bucket_sort)
     #check_performance(choose_sort)
     #check_performance(bubble_sort)
     #check_performance(insert_sort)
